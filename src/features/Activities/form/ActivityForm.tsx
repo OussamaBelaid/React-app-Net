@@ -1,20 +1,21 @@
 import React, { useState, FormEvent } from "react";
 import { Segment, Form, Button } from "semantic-ui-react";
 import { IActivity } from "../../../app/models/activity";
-import {v4 as uuid} from 'uuid'
+import { v4 as uuid } from "uuid";
 interface IProps {
   setEditMode: (editMode: boolean) => void;
   Activity: IActivity;
-  createActivity : (activity:IActivity) => void;
-  editActivity : (activity:IActivity) => void;
-
+  createActivity: (activity: IActivity) => void;
+  editActivity: (activity: IActivity) => void;
+  submitting: boolean;
 }
 
 export const ActivityForm: React.FC<IProps> = ({
   setEditMode,
   Activity: initialFormState,
   createActivity,
-  editActivity
+  editActivity,
+  submitting
 }) => {
   const initializeForm = () => {
     if (initialFormState) {
@@ -34,18 +35,20 @@ export const ActivityForm: React.FC<IProps> = ({
   const [Activity, setActivity] = useState<IActivity>(initializeForm);
 
   const handleSubmit = () => {
-    if(Activity.id.length ===0){
-        let newActivity = {
-            ...Activity,
-            id:uuid()
-        }
-        createActivity(newActivity)
-    }else {
-        editActivity(Activity);
+    if (Activity.id.length === 0) {
+      let newActivity = {
+        ...Activity,
+        id: uuid()
+      };
+      createActivity(newActivity);
+    } else {
+      editActivity(Activity);
     }
-  }
+  };
 
-  const handleInputChange = (event: FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    event: FormEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = event.currentTarget;
     setActivity({ ...Activity, [name]: value });
   };
@@ -90,7 +93,13 @@ export const ActivityForm: React.FC<IProps> = ({
           name='venue'
           value={Activity.venue}
         />
-        <Button floated='right' positive type='submit' content='Submit' />
+        <Button
+          loading={submitting}
+          floated='right'
+          positive
+          type='submit'
+          content='Submit'
+        />
         <Button
           onClick={() => setEditMode(false)}
           floated='right'
