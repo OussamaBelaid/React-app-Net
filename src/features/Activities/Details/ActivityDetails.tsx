@@ -1,37 +1,52 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Card, Image, Button } from "semantic-ui-react";
 import ActivityStore from '../../../app/stores/activityStore';
 import { observer } from "mobx-react-lite";
+import { RouteComponentProps } from "react-router";
+import { LoadingComponent } from "../../../app/layout/LoadingComponent";
+import { Link } from "react-router-dom";
 
+interface DetailParams {
+  id:string
+}
 
-export const ActivityDetails: React.FC = () => {
+export const ActivityDetails: React.FC<RouteComponentProps<DetailParams>> = ({match,history}) => {
   const activityStore = useContext(ActivityStore)
-  const {selectedActivity : Activity , openEditForm , cancelSelectedActivity} =activityStore;
-
+  const {activity,loadActivity,loadingInitial} =activityStore;
+ 
+ 
+  useEffect(()=> {
+    const reloadAct = () => {
+      return loadActivity(match.params.id)
+    }
+    reloadAct()
+ 
+  },[loadActivity,match.params.id])
+  if(loadingInitial || !activity) return <LoadingComponent content='loading activity'/>
   return (
     <Card fluid>
       <Image
-        src={`/assets/categoryImages/${Activity!.category}.jpg`}
+        src={`/assets/categoryImages/${activity!.category}.jpg`}
         wrapped
         ui={false}
       />
       <Card.Content>
-        <Card.Header>{Activity!.title}</Card.Header>
+        <Card.Header>{activity!.title}</Card.Header>
         <Card.Meta>
-          <span className='date'>{Activity!.date}</span>
+          <span className='date'>{activity!.date}</span>
         </Card.Meta>
-        <Card.Description>{Activity!.description}</Card.Description>
+        <Card.Description>{activity!.description}</Card.Description>
       </Card.Content>
       <Card.Content extra>
         <Button.Group width={2}>
           <Button
-            onClick={() => openEditForm(Activity!.id)}
+           as={Link} to={`/manage/${activity.id}`}
             basic
             color='blue'
             content='Edit'
           />
           <Button
-            onClick={() => cancelSelectedActivity}
+            onClick={() => history.push('/activities')}
             basic
             color='grey'
             content='Cancel'
