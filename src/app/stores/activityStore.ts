@@ -7,7 +7,7 @@ configure({ enforceActions: "always" });
 
 class ActivityStore {
   @observable activitiesRegister = new Map();
-  @observable activity: IActivity | null = null;
+  @observable activitie: IActivity | null = null;
   @observable loadingInitial = false;
   @observable submitting = false;
   @observable target = "";
@@ -50,18 +50,22 @@ class ActivityStore {
 
 @action loadActivity = async (id:string) => 
 {
-  let activity = this.getActivity(id);
-  if(activity){
+  console.log(id)
+  let activitys = this.getActivity(id);
+  console.log(activitys)
+  if(activitys){
     console.log("fully")
-    this.activity=activity;
-    console.log(this.activity)
+    this.activitie=activitys;
+    console.log(this.activitie)
   } else {
     console.log("without")
     this.loadingInitial=true;
     try{
-     activity = await agent.activities.details(id);
+     activitys = await agent.activities.details(id);
+     console.log(activitys)
      runInAction('getting Activity',() => {
-      this.activity = activity;
+      this.activitie = activitys;
+      console.log(this.activitie)
       this.loadingInitial=false;
      })
    
@@ -84,7 +88,7 @@ getActivity= (id:string) =>
 }
 
 @action clearActivity = () => {
-  this.activity=null;
+  this.activitie=null;
 }
 
   @action createActivity = async (Activity: IActivity) => {
@@ -108,7 +112,7 @@ getActivity= (id:string) =>
       await agent.activities.update(activity);
       runInAction("update activity", () => {
         this.activitiesRegister.set(activity.id, activity);
-        this.activity = activity;
+        this.activitie = activity;
         this.submitting = false;
       });
     } catch (error) {

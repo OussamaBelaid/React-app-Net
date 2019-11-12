@@ -19,7 +19,7 @@ export const ActivityForm: React.FC<RouteComponentProps<DetailPrams>> = ({
     createActivity,
     editActivity,
     submitting,
-    activity: initialFormState,
+    activitie: initialFormState,
     loadActivity,
     clearActivity
   } = activityStore;

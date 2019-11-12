@@ -15,22 +15,26 @@ interface DetailParams {
 
 export const ActivityDetails: React.FC<RouteComponentProps<DetailParams>> = ({match,history}) => {
   const activityStore = useContext(ActivityStore)
-  const {activity,loadActivity,loadingInitial} =activityStore;
+  const {activitie,loadActivity,loadingInitial} =activityStore;
  
  
   useEffect(()=> {
-    const reloadAct = () => {
-      return loadActivity(match.params.id)
-    }
-    reloadAct()
+   loadActivity(match.params.id);
  
   },[loadActivity,match.params.id])
-  if(loadingInitial || !activity) return <LoadingComponent content='loading activity'/>
+  
+  if(loadingInitial) return <LoadingComponent content='loading activity'/>
+ 
+  if(!activitie)
+  {
+    console.log("aaa",activitie)
+    return <h2>Activity not found</h2>
+  }
   return (
    <Grid>
      <Grid.Column width={10}>
-      <ActivityDetailedHeader activity={activity} />
-       <ActivityDetailedInfo activity={activity}/>
+      <ActivityDetailedHeader activity={activitie} />
+       <ActivityDetailedInfo activity={activitie}/>
        <ActivityDetailedChat/>
      </Grid.Column>
      <Grid.Column width={6}>
