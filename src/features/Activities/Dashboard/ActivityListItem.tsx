@@ -7,7 +7,7 @@ import {format} from 'date-fns'
 export const ActivityListItem: React.FC<{ activity: IActivity }> = ({
   activity
 }) => {
- // const activityStore = useContext(ActivityStore);
+ // const activityStore = useContext(RootStoreContext);
 
   return (
     <Segment.Group>
