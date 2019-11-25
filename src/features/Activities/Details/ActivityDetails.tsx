@@ -5,15 +5,15 @@ import { RouteComponentProps } from "react-router";
 import { LoadingComponent } from "../../../app/layout/LoadingComponent";
 import { ActivityDetailedInfo } from "./ActivityDetailedInfo";
 import { ActivityDetailedChat } from "./ActivityDetailedChat";
-import { ActivityDetailedSidebar } from "./ActivityDetailedSidebar";
 import ActivityDetailedHeader from "./ActivityDetailedHeader";
 import { RootStoreContext } from "../../../app/stores/routeStore";
+import ActivityDetailedSidebar from "./ActivityDetailedSidebar";
 
 interface DetailParams {
   id:string
 }
 
-export const ActivityDetails: React.FC<RouteComponentProps<DetailParams>> = ({match,history}) => {
+  const ActivityDetails: React.FC<RouteComponentProps<DetailParams>> = ({match,history}) => {
   const rootStore = useContext(RootStoreContext);
   const {activitie,loadActivity,loadingInitial} = rootStore.activityStore;
  
@@ -39,7 +39,7 @@ export const ActivityDetails: React.FC<RouteComponentProps<DetailParams>> = ({ma
        <ActivityDetailedChat/>
      </Grid.Column>
      <Grid.Column width={6}>
-      <ActivityDetailedSidebar/>
+      <ActivityDetailedSidebar attendees={activitie.attendees}/>
      </Grid.Column>
    </Grid>
   );

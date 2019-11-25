@@ -11,13 +11,13 @@ import {
   Switch
 } from "react-router-dom";
 import { ActivityForm } from "../../features/Activities/form/ActivityForm";
-import { ActivityDetails } from "../../features/Activities/Details/ActivityDetails";
 import NotFound from "./NotFound";
 import loginForm from "../../features/user/LoginForm";
 import HomePage from "../../features/home/HomePage";
 import { RootStoreContext } from "../stores/routeStore";
 import { LoadingComponent } from "./LoadingComponent";
 import ModalContainer from "../common/modals/ModalContainer";
+import ActivityDetails from "../../features/Activities/Details/ActivityDetails";
 const App: React.FC<RouteComponentProps> = ({ location }) => {
   const rootStore = useContext(RootStoreContext);
   const {setAppLoaded , token , appLoaded} = rootStore.commonStore;
