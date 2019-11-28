@@ -6,9 +6,7 @@ import { IActivity } from "../../../app/models/activity";
 import { format } from "date-fns";
 import { ActivityListItemAttendees } from "./ActivityListItemAttendees";
 import { observer } from "mobx-react-lite";
-const ActivityListItem: React.FC<{ activity: IActivity }> = ({
-  activity
-}) => {
+const ActivityListItem: React.FC<{ activity: IActivity }> = ({ activity }) => {
   // const activityStore = useContext(RootStoreContext);
   const host = activity.attendees.filter(x => x.isHost)[0];
   return (
@@ -16,11 +14,21 @@ const ActivityListItem: React.FC<{ activity: IActivity }> = ({
       <Segment>
         <Item.Group>
           <Item>
-            <Item.Image size='tiny' circular src={host.image || '/assets/user.png'} />
+            <Item.Image
+              size='tiny'
+              circular
+              src={host.image || "/assets/user.png"}
+              style={{ marginBottom: 3 }}
+            />
             <Item.Content>
-              <Item.Header as={Link} to={`/activities/${activity.id}`}>{activity.title}</Item.Header>
+              <Item.Header as={Link} to={`/activities/${activity.id}`}>
+                {activity.title}
+              </Item.Header>
 
-              <Item.Description>Hosted By {host.displayName}</Item.Description>
+              <Item.Description>
+                Hosted By{" "}
+                <Link to={`/profile/${host.username}`}>{host.displayName}</Link>
+              </Item.Description>
               {activity.isHost && (
                 <Item.Description>
                   <Label

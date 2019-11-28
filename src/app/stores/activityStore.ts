@@ -6,7 +6,7 @@ import { history } from "../..";
 import { toast } from "react-toastify";
 import { RootStore } from "./routeStore";
 import { setActivityProps, createAttendee } from "../common/util/util";
-
+import {HubConnection, HubConnectionBuilder, LogLevel} from '@aspnet/signalr';
 export default class ActivityStore {
   rootStore: RootStore;
 
@@ -20,7 +20,9 @@ export default class ActivityStore {
   @observable submitting = false;
   @observable target = "";
   @observable loading = false;
+  @observable.ref hubConnection : HubConnection | null = null;
 
+  
   @computed get activitiesByDate() {
     return this.groupActivitiesByDate(
       Array.from(this.activitiesRegister.values())
@@ -41,6 +43,40 @@ export default class ActivityStore {
       }, {} as { [key: string]: IActivity[] })
     );
   }
+  @action createHubConnection = () => {
+    this.hubConnection = new HubConnectionBuilder()
+    .withUrl('https://localhost:44385/chat', {
+      accessTokenFactory:() => this.rootStore.commonStore.token!
+    })
+    .configureLogging(LogLevel.Information)
+    .build();
+
+    this.hubConnection.start()
+    .then(() => console.log(this.hubConnection!.state))
+    .catch(error => console.log('Error establishing connection : ',error));
+
+    this.hubConnection.on('ReceiveComment',comment => {
+      runInAction(() => {
+        this.activitie!.comments.push(comment);
+      })
+      
+    })
+  };
+
+  @action stopHubConnection = () => {
+    this.hubConnection!.stop();
+  }
+
+  @action addComment = async (values:any) => {
+    values.ActivityId = this.activitie!.id;
+     
+    try {
+      await this.hubConnection!.invoke('SendComment',values)
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
 
   @action loadActivities = async () => {
     this.loadingInitial = true;
@@ -50,6 +86,7 @@ export default class ActivityStore {
         activities.forEach(activity => {
           setActivityProps(activity, this.rootStore.userStore.user!);
           this.activitiesRegister.set(activity.id, activity);
+      
         });
         this.loadingInitial = false;
       });
@@ -111,6 +148,7 @@ export default class ActivityStore {
         let attendees = [];
         attendees.push(attendee);
         Activity.attendees = attendees;
+        Activity.comments=[];
         Activity.isHost=true;
       
      
