@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { Tab, Grid, Header, Button } from "semantic-ui-react";
 import { RootStoreContext } from "../../app/stores/routeStore";
 import ProfileEditForm from "./ProfileEditForm";
+import { observer } from "mobx-react-lite";
 
 const ProfileDescription = () => {
   const rootStore = useContext(RootStoreContext);
@@ -37,4 +38,4 @@ const ProfileDescription = () => {
   );
 };
 
-export default ProfileDescription;
+export default observer(ProfileDescription);

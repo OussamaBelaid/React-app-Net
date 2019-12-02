@@ -1,5 +1,5 @@
 import { RootStore } from "./routeStore";
-import { observable, runInAction, action, computed } from "mobx";
+import { observable, runInAction, action, computed, reaction } from "mobx";
 import { IProfile, IPhoto } from "../models/Profile";
 import agent from "../api/agent";
 import { toast } from "react-toastify";
@@ -7,13 +7,29 @@ export default class ProfileStore {
   rootStore: RootStore;
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
+
+    reaction(
+      () => this.activeTab,
+      activeTab => {
+        if(activeTab === 3 || activeTab === 4 )
+        {
+          const predicate = activeTab === 3 ? 'followers' : 'following';
+          this.loadFollowings(predicate)
+        }
+        else
+        {
+          this.followings=[];
+        }
+      }
+    )
   }
 
   @observable profile: IProfile | null = null;
   @observable loadingProfile = true;
   @observable uploadingPhoto = false;
   @observable loading = false;
-
+  @observable followings:IProfile[] = [];
+  @observable activeTab:any=0;
   @computed get isCurrentUser() {
     if (this.rootStore.userStore.user && this.profile) {
       return this.rootStore.userStore.user.username === this.profile.userName;
@@ -21,13 +37,17 @@ export default class ProfileStore {
       return false;
     }
   }
+  
+  @action setActiveTab = (activeIndex:any) => {
+    this.activeTab = activeIndex;
+  }
 
   @action loadProfile = async (username: string) => {
     this.loadingProfile = true;
     try {
       const profile = await agent.Profiles.get(username);
       runInAction(() => {
-        console.log(profile.image);
+        
         this.profile = profile;
         this.loadingProfile = false;
       });
@@ -100,21 +120,72 @@ export default class ProfileStore {
     }
   };
 
-  @action updateProfile = async (profile:Partial<IProfile>) => {
-      try{
-          await agent.Profiles.updateProfile(profile);
-          runInAction(() => {
-              if(profile.displayName !== this.rootStore.userStore.user!.displayName)
-              {
-                  this.rootStore.userStore.user!.displayName = profile.displayName!;
+  @action updateProfile = async (profile: Partial<IProfile>) => {
+    try {
+      await agent.Profiles.updateProfile(profile);
+      runInAction(() => {
+        if (
+          profile.displayName !== this.rootStore.userStore.user!.displayName
+        ) {
+          this.rootStore.userStore.user!.displayName = profile.displayName!;
+        }
+        this.profile = { ...this.profile!, ...profile };
+      });
+    } catch (error) {
+      toast.error("Problem updating profile");
+    }
+  };
 
-              }
-              this.profile = {...this.profile!,...profile};
-          })
-      }
-      catch (error)
-      {
-          toast.error('Problem updating profile');
-      }
+  @action follow = async (username: string) => {
+    this.loading = true;
+    try {
+      await agent.Profiles.follow(username);
+      runInAction(() => {
+        this.profile!.following = true;
+        this.profile!.followersCount++;
+        this.loading = false;
+      });
+    } catch (error) {
+      toast.error("Problem following user");
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  };
+
+  @action unfollow = async (username: string) => {
+    this.loading = true;
+    try {
+      await agent.Profiles.unfollow(username);
+      runInAction(() => {
+        this.profile!.following = false;
+        this.profile!.followersCount--;
+        this.loading = false;
+      });
+    } catch (error) {
+      toast.error("Problem unfollowing user");
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  };
+
+  @action loadFollowings=async (predicate:string) => {
+    this.loading=true;
+
+    try {
+      const profiles = await agent.Profiles.listFollowings(this.profile!.userName,predicate);
+      runInAction(() => {
+        this.followings = profiles;
+        console.log("follow",this.followings.length)
+        this.loading=false;
+        console.log("loading off")
+      })
+    } catch (error) {
+      toast.error('Problem loading followings');
+      runInAction(() => {
+        this.loading = false;
+      })
+    }
   }
 }
