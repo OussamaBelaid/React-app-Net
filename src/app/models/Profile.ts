@@ -7,6 +7,7 @@ export interface IProfile {
     followersCount:number,
     followingCount : number,
     photos:IPhoto[]
+    
 }
 
 export interface IPhoto {
